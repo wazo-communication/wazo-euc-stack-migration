@@ -1,0 +1,11 @@
+name: wazo-enterprise-migration
+namespace: official
+version: 1.0.0
+author: Wazo Support
+display_name: Migration to Wazo Enterprise Unified Communication Stack
+min_wazo_version: 19.13
+tags:
+  - support
+  - migration
+  - enterprise
+homepage: http://support.wazo.io

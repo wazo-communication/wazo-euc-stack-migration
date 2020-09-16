@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Copyright 2020 Wazo Communication inc.
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+cat > /etc/apt/sources.list.d/wazo-enterprise.list <<EOF
+deb http://mirror.wazo.io/enterprise enterprise-buster main
+EOF
+
+export DEBIAN_FRONTEND=noninteractive
+
+apt-get update
+apt-get install -y wazo-enterprise
+systemctl restart wazo-auth
