@@ -3,12 +3,78 @@
 # Copyright 2020 Wazo Communication inc.
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+# Supported environments:
+# - EUC Stack 20.12
+# - EUC Stack installed from ISO
+# - EUC Stack installed script
+# - EUC Stack, wizard configured
+# - EUC Stack, wizard not configured
+# - Wazo Platform 20.12
+# - Wazo Platform freshly installed, wizard not configured
+# - Wazo Platform, wizard configured without Nestbox
+# - Wazo Platform, wizard configured with Nestbox
+
+# Unsupported environments:
+# - Wazo Platform not installed
+
+set -e
+
+echo "Adding Wazo EUC Stack repository..."
+apt-get update -qq
+apt-get install -yqq ca-certificates
+
 cat > /etc/apt/sources.list.d/wazo-enterprise.list <<EOF
-deb http://mirror.wazo.io/enterprise enterprise-buster main
+deb https://mirror.wazo.io/enterprise enterprise-buster main
 EOF
+rm -f /etc/apt/sources.list.d/wazo-dist.list
 
+apt-get update -qq
+
+echo "Verifying repositories..."
+if apt-cache policy | grep -qE "http://mirror.wazo.community/debian (wazo-dev|wazo-rc|pelican)-buster" ; then
+    echo "Error code 02: Wazo Platform configuration is still present."
+    echo "Please send this error and the output of `apt-cache policy` to Wazo Support."
+    exit 2
+fi
+if ! apt-cache policy | grep -qE "https://mirror.wazo.io/enterprise enterprise-(dev-|rc-|)buster" ; then
+    echo "Error code 03: Wazo EUC Stack configuration not found."
+    echo "Please send this error and the output of `apt-cache policy` and `apt-get update` to Wazo Support."
+    exit 3
+fi
+
+echo "Installing Wazo EUC Stack packages..."
 export DEBIAN_FRONTEND=noninteractive
+apt-get install -yqq wazo-enterprise wazo-nestbox-plugin wazo-deployd-client
 
-apt-get update
-apt-get install -y wazo-enterprise
+echo "Restarting wazo-auth..."
 systemctl restart wazo-auth
+
+: ${WAZO_CONFD_PORT:='9486'}
+is_wazo_configured() {
+    if ! systemctl is-active --quiet wazo-confd; then
+		    echo "Error code 04: wazo-confd is not running: cannot check if the web wizard has been run."
+		    exit 4
+	  fi
+	  # wazo-confd has no HTTPS since wazo-20.07
+	  for scheme in 'http' 'https'; do
+		    if [ -n "$(curl -skX GET --header 'Accept: application/json' "$scheme://localhost:$WAZO_CONFD_PORT/1.1/wizard" | grep '\"configured\"[[:space:]]*:[[:space:]]*true')" ]; then
+			      return
+		    fi
+	  done
+	  return 1
+}
+
+wazo_nestbox_plugin_configured() {
+    test -s /usr/share/wazo-setupd/50-wazo-plugin-nestbox.yml
+}
+
+if is_wazo_configured ; then
+    echo "Validating connection to Portal..."
+    if ! wazo_nestbox_plugin_configured ; then
+        echo "Error code 01: Wazo Portal configuration not found."
+        echo "Please send this error to Wazo Support."
+        exit 1
+    fi
+fi
+
+echo "Migration to Wazo EUC Stack successful."
