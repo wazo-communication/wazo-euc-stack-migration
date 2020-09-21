@@ -8,7 +8,7 @@ case "$1" in
         ;;
 
     package)
-	install -Dm 0755 -o root -g root wazo-enterprise-migration "${pkgdir}/usr/bin/wazo-enterprise-migration"
+	install -Dm 0755 -o root -g root wazo-euc-stack-migration "${pkgdir}/usr/bin/wazo-euc-stack-migration"
         ;;
 
     install)

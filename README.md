@@ -14,13 +14,13 @@ Connect to your stack and authenticate as user root. Then run the following comm
 
 ```shell
 apt install wazo-plugind-cli
-wazo-plugind-cli -c "install git https://github.com/wazo-communication/wazo-enterprise-migration"
+wazo-plugind-cli -c "install git https://github.com/wazo-communication/wazo-euc-stack-migration"
 ```
 
 ## Usage
 
 ```shell
-wazo-enterprise-migration
+wazo-euc-stack-migration
 ```
 
 ### Environment variables
@@ -49,7 +49,7 @@ Diagnostic:
 
 ### Error 03
 
-Problem: the mirror `http://mirror.wazo.io` is not correctly configured.
+Problem: the mirror `https://mirror.wazo.io` is not correctly configured.
 
 Diagnostic:
 

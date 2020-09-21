@@ -1,4 +1,4 @@
-name: wazo-enterprise-migration
+name: wazo-euc-stack-migration
 namespace: official
 version: 1.0.0
 author: Wazo Support
