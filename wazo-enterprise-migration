@@ -52,16 +52,16 @@ systemctl restart wazo-auth
 : ${WAZO_CONFD_PORT:='9486'}
 is_wazo_configured() {
     if ! systemctl is-active --quiet wazo-confd; then
-		    echo "Error code 04: wazo-confd is not running: cannot check if the web wizard has been run."
-		    exit 4
-	  fi
-	  # wazo-confd has no HTTPS since wazo-20.07
-	  for scheme in 'http' 'https'; do
-		    if [ -n "$(curl -skX GET --header 'Accept: application/json' "$scheme://localhost:$WAZO_CONFD_PORT/1.1/wizard" | grep '\"configured\"[[:space:]]*:[[:space:]]*true')" ]; then
-			      return
-		    fi
-	  done
-	  return 1
+        echo "Error code 04: wazo-confd is not running: cannot check if the web wizard has been run."
+        exit 4
+    fi
+    # wazo-confd has no HTTPS since wazo-20.07
+    for scheme in 'http' 'https'; do
+        if [ -n "$(curl -skX GET --header 'Accept: application/json' "$scheme://localhost:$WAZO_CONFD_PORT/1.1/wizard" | grep '\"configured\"[[:space:]]*:[[:space:]]*true')" ]; then
+            return
+        fi
+    done
+    return 1
 }
 
 wazo_nestbox_plugin_configured() {
