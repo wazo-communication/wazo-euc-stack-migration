@@ -27,6 +27,7 @@ wazo-euc-stack-migration
 ### Environment variables
 
 - `CONFD_PORT`: the local port of wazo-confd. Default: `9486`.
+- `WAZO_REMOVE_EUC_STACK_MIGRATION_PLUGIN`: Force the removal of this plugin. Valid values: 0 (don't remove) and 1 (remove). Default: prompt the value.
 
 ## Error codes
 
