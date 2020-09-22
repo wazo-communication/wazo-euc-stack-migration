@@ -13,6 +13,7 @@
 # - Wazo Platform freshly installed, wizard not configured
 # - Wazo Platform, wizard configured without Nestbox
 # - Wazo Platform, wizard configured with Nestbox
+# - Wazo Platform upgraded from Wazo < 16.13
 
 # Unsupported environments:
 # - Wazo Platform not installed
@@ -26,7 +27,7 @@ apt-get install -yqq ca-certificates
 cat > /etc/apt/sources.list.d/wazo-enterprise.list <<EOF
 deb https://mirror.wazo.io/enterprise enterprise-buster main
 EOF
-rm -f /etc/apt/sources.list.d/wazo-dist.list
+rm -f /etc/apt/sources.list.d/wazo-dist.list /etc/apt/sources.list.d/xivo-dist.list
 
 apt-get update -qq
 
@@ -44,7 +45,7 @@ fi
 
 echo "Installing Wazo EUC Stack packages..."
 export DEBIAN_FRONTEND=noninteractive
-apt-get install -yqq wazo-enterprise wazo-nestbox-plugin wazo-deployd-client
+apt-get install -yqq wazo-enterprise wazo-nestbox-plugin wazo-deployd-client wazo-plugind-cli
 
 echo "Restarting wazo-auth..."
 systemctl restart wazo-auth
@@ -77,4 +78,31 @@ if is_wazo_configured ; then
     fi
 fi
 
+echo "Migration to Wazo EUC Stack finished."
+
+remove_euc_stack_migration() {
+    wazo-plugind-cli -c "uninstall official/wazo-euc-stack-migration --async"
+}
+
+prompt_remove_migration_plugin() {
+    while true; do
+        read -p "Do you want to remove the migration plugin? ([Y]/n) " yn
+        case $yn in
+            ""|[Yy]* ) WAZO_REMOVE_EUC_STACK_MIGRATION_PLUGIN=1; break;;
+            [Nn]* ) WAZO_REMOVE_EUC_STACK_MIGRATION_PLUGIN=0; break;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+}
+
+if [ -z "$WAZO_REMOVE_EUC_STACK_MIGRATION_PLUGIN" ] ; then
+    prompt_remove_migration_plugin
+fi
+
+if [ "$WAZO_REMOVE_EUC_STACK_MIGRATION_PLUGIN" -eq 1 ] ; then
+    echo "Removing the migration plugin..."
+    remove_euc_stack_migration
+fi
+
 echo "Migration to Wazo EUC Stack successful."
+
