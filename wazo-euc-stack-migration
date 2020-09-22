@@ -86,7 +86,7 @@ remove_euc_stack_migration() {
 
 prompt_remove_migration_plugin() {
     while true; do
-        read -p "Do you want to remove the migration plugin? (Y/n) " yn
+        read -p "Do you want to remove the migration plugin? ([Y]/n) " yn
         case $yn in
             ""|[Yy]* ) WAZO_REMOVE_EUC_STACK_MIGRATION_PLUGIN=1; break;;
             [Nn]* ) WAZO_REMOVE_EUC_STACK_MIGRATION_PLUGIN=0; break;;
