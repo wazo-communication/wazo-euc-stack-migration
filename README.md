@@ -13,6 +13,7 @@ Wazo version >= 19.13
 Connect to your stack and authenticate as user root. Then run the following command:
 
 ```shell
+apt update
 apt install wazo-plugind-cli
 wazo-plugind-cli -c "install git https://github.com/wazo-communication/wazo-euc-stack-migration"
 ```
