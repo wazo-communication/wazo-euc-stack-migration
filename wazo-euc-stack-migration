@@ -34,12 +34,12 @@ apt-get update -qq
 echo "Verifying repositories..."
 if apt-cache policy | grep -qE "http://mirror.wazo.community/debian (wazo-dev|wazo-rc|pelican)-buster" ; then
     echo "Error code 02: Wazo Platform configuration is still present."
-    echo "Please send this error and the output of `apt-cache policy` to Wazo Support."
+    echo "Please send this error and the output of 'apt-cache policy' to Wazo Support."
     exit 2
 fi
 if ! apt-cache policy | grep -qE "https://mirror.wazo.io/enterprise enterprise-(dev-|rc-|)buster" ; then
     echo "Error code 03: Wazo EUC Stack configuration not found."
-    echo "Please send this error and the output of `apt-cache policy` and `apt-get update` to Wazo Support."
+    echo "Please send this error and the output of 'apt-cache policy' and 'apt-get update' to Wazo Support."
     exit 3
 fi
 
