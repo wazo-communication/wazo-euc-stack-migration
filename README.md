@@ -67,3 +67,16 @@ Diagnostic:
 
 - `wazo-service status`
 - `systemctl status wazo-confd`
+
+### Error 05
+
+Problem: the version of Wazo is invalid
+
+Diagnostic:
+
+- `apt-cache policy wazo-platform`
+- look in `/usr/share/wazo/WAZO-VERSION`
+
+### Error 06
+
+See error 03
