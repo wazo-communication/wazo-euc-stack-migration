@@ -20,12 +20,23 @@
 
 set -e
 
+echo "Getting Wazo version..."
+EUC_VERSION=$(cat /usr/share/wazo/WAZO-VERSION)
+
+if [[ "$EUC_VERSION" != ??.?? ]] ; then
+    echo "Error code 05: invalid Wazo version '$EUC_VERSION'"
+    exit 5
+fi
+if [[ "$EUC_VERSION" < "20.11" ]] ; then
+    EUC_VERSION=20.11
+fi
+
 echo "Adding Wazo EUC Stack repository..."
 apt-get update -qq
 apt-get install -yqq ca-certificates
 
 cat > /etc/apt/sources.list.d/wazo-enterprise.list <<EOF
-deb https://mirror.wazo.io/enterprise enterprise-buster main
+deb https://mirror.wazo.io/enterprise-archive enterprise-$EUC_VERSION main
 EOF
 rm -f /etc/apt/sources.list.d/wazo-dist.list /etc/apt/sources.list.d/xivo-dist.list
 
@@ -37,7 +48,7 @@ if apt-cache policy | grep -qE "http://mirror.wazo.community/debian (wazo-dev|wa
     echo "Please send this error and the output of 'apt-cache policy' to Wazo Support."
     exit 2
 fi
-if ! apt-cache policy | grep -qE "https://mirror.wazo.io/enterprise enterprise-(dev-|rc-|)buster" ; then
+if ! apt-cache policy | grep -qE "https://mirror.wazo.io/enterprise-archive enterprise-$EUC_VERSION" ; then
     echo "Error code 03: Wazo EUC Stack configuration not found."
     echo "Please send this error and the output of 'apt-cache policy' and 'apt-get update' to Wazo Support."
     exit 3
@@ -49,6 +60,19 @@ apt-get install -yqq wazo-enterprise wazo-nestbox-plugin wazo-deployd-client waz
 
 echo "Restarting wazo-auth..."
 systemctl restart wazo-auth
+
+echo "Updating Wazo EUC Stack repository..."
+cat > /etc/apt/sources.list.d/wazo-enterprise.list <<EOF
+deb https://mirror.wazo.io/enterprise enterprise-buster main
+EOF
+
+apt-get update -qq
+
+if ! apt-cache policy | grep -qE "https://mirror.wazo.io/enterprise enterprise-(dev-|rc-|)buster" ; then
+    echo "Error code 06: Wazo EUC Stack updated configuration not found."
+    echo "Please send this error and the output of 'apt-cache policy' and 'apt-get update' to Wazo Support."
+    exit 6
+fi
 
 : ${WAZO_CONFD_PORT:='9486'}
 is_wazo_configured() {
