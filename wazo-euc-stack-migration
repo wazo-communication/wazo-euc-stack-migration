@@ -56,7 +56,10 @@ fi
 
 echo "Installing Wazo EUC Stack packages..."
 export DEBIAN_FRONTEND=noninteractive
-apt-get install -yqq wazo-enterprise wazo-nestbox-plugin wazo-deployd-client wazo-plugind-cli
+apt-get install -yqq wazo-enterprise wazo-plugind-cli
+if [[ "$EUC_VERSION" < "21.02" ]] ; then
+    apt-get install -yqq wazo-nestbox-plugin wazo-deployd-client
+fi
 
 echo "Restarting wazo-auth..."
 systemctl restart wazo-auth
